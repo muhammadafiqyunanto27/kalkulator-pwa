@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,8 +11,9 @@
 </head>
 <body>
   <div class="calculator">
-    <label for="display" class="visually-hidden">Display kalkulator</label>
-    <input type="text" id="display" disabled />
+    <input type="text" id="display" placeholder="0" disabled />
+    
+    <label for="judul">Judul Kalkulasi:</label>
     <input type="text" id="judul" placeholder="Masukkan judul kalkulasi..." />
 
     <div class="buttons">
@@ -38,23 +39,28 @@
 
       <button onclick="calculate()" class="equals">=</button>
     </div>
-  </div>
 
-  <div class="history">
-    <h3>Riwayat Kalkulasi</h3>
-    <ul id="history-list"></ul>
+    <div class="history-section">
+      <h2>Riwayat</h2>
+
+      <label for="search">Cari berdasarkan Judul:</label>
+      <input type="text" id="search" placeholder="Cari judul..." oninput="filterResults()" />
+
+      <label for="dateFilter">Filter berdasarkan Tanggal:</label>
+      <input type="date" id="dateFilter" onchange="filterResults()" />
+
+      <button onclick="clearHistory()">Hapus Semua Riwayat</button>
+      <ul id="historyList"></ul>
+    </div>
   </div>
 
   <script src="idb.js"></script>
   <script src="script.js"></script>
-
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(() => console.log('Service Worker registered'))
-          .catch(err => console.error('SW failed:', err));
-      });
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('Service Worker registered'))
+        .catch(err => console.error('SW failed:', err));
     }
   </script>
 </body>
