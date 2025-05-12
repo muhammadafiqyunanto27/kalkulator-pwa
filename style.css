@@ -1,15 +1,13 @@
-/* Reset styling dasar */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  height: 100vh;
+  padding-top: 40px;
   margin: 0;
   background: linear-gradient(135deg, #ece9e6, #ffffff);
 }
 
-/* Style container kalkulator */
 .calculator {
   background: #1e1e2f;
   border-radius: 16px;
@@ -17,13 +15,13 @@ body {
   width: 280px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
+  margin-bottom: 20px;
 }
 
 .calculator:hover {
   transform: translateY(-3px);
 }
 
-/* Label tersembunyi untuk aksesibilitas */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -34,12 +32,12 @@ body {
   border: 0;
 }
 
-/* Style display kalkulator */
-#display {
+#display,
+#judul {
   width: 100%;
   height: 50px;
-  margin-bottom: 20px;
-  font-size: 24px;
+  margin-bottom: 10px;
+  font-size: 20px;
   text-align: right;
   padding: 10px;
   box-sizing: border-box;
@@ -50,14 +48,18 @@ body {
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Style grid tombol */
+#judul {
+  background-color: #fff;
+  color: #000;
+  text-align: left;
+}
+
 .buttons {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 
-/* Style dasar tombol */
 button {
   height: 50px;
   font-size: 18px;
@@ -77,7 +79,6 @@ button:active {
   transform: scale(0.95);
 }
 
-/* Style khusus tombol '=' */
 .equals {
   grid-column: span 4;
   background: #ff8c00;
@@ -88,4 +89,31 @@ button:active {
 
 .equals:hover {
   background: #ff9c20;
+}
+
+.history {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  width: 280px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.history h3 {
+  margin-top: 0;
+  font-size: 18px;
+  color: #333;
+  text-align: center;
+}
+
+#history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#history-list li {
+  padding: 6px 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
 }

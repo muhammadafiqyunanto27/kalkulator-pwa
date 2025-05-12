@@ -13,7 +13,6 @@
   <div class="calculator">
     <label for="display" class="visually-hidden">Display kalkulator</label>
     <input type="text" id="display" disabled />
-
     <input type="text" id="judul" placeholder="Masukkan judul kalkulasi..." />
 
     <div class="buttons">
@@ -39,6 +38,11 @@
 
       <button onclick="calculate()" class="equals">=</button>
     </div>
+  </div>
+
+  <div class="history">
+    <h3>Riwayat Kalkulasi</h3>
+    <ul id="history-list"></ul>
   </div>
 
   <script src="idb.js"></script>

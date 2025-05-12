@@ -15,7 +15,6 @@ function calculate() {
     const result = eval(display.value);
     display.value = result;
 
-    // Simpan ke IndexedDB
     const title = judulInput.value || 'Tanpa Judul';
     saveCalculation(title, result);
   } catch {
