@@ -1,109 +1,99 @@
-let display = document.getElementById('display');
-let judulInput = document.getElementById('judul');
-let historyList = document.getElementById('historyList');
-let searchInput = document.getElementById('search');
-let dateInput = document.getElementById('dateFilter');
-
+let display = document.getElementById("display");
+let judul = document.getElementById("judul");
 let db;
 
-const request = indexedDB.open('KalkulatorDB', 1);
-request.onerror = () => console.error("Gagal membuka IndexedDB");
+window.onload = () => {
+  openDB();
+  loadHistory();
 
-request.onsuccess = (event) => {
-  db = event.target.result;
-  showAllHistory();
-};
+  document.getElementById("toggleTheme").onclick = () => {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+  };
 
-request.onupgradeneeded = (event) => {
-  db = event.target.result;
-  if (!db.objectStoreNames.contains('calculations')) {
-    db.createObjectStore('calculations', { keyPath: 'id', autoIncrement: true });
+  // Load theme
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark");
   }
 };
 
-function appendToDisplay(value) {
-  display.value += value;
-}
-
-function clearDisplay() {
-  display.value = '';
-  judulInput.value = '';
+function press(val) {
+  display.value += val;
 }
 
 function calculate() {
   try {
     const result = eval(display.value);
+    saveHistory(judul.value, display.value, result);
     display.value = result;
-
-    const title = judulInput.value || 'Tanpa Judul';
-    saveCalculation(title, result);
+    judul.value = "";
   } catch {
-    display.value = 'Error';
+    alert("Ekspresi tidak valid");
   }
 }
 
-function saveCalculation(title, result) {
+function clearDisplay() {
+  display.value = "";
+}
+
+function openDB() {
+  let request = indexedDB.open("kalkulatorDB", 1);
+  request.onerror = () => console.error("DB gagal dibuka");
+  request.onsuccess = (e) => {
+    db = e.target.result;
+    loadHistory();
+  };
+  request.onupgradeneeded = (e) => {
+    db = e.target.result;
+    db.createObjectStore("history", { keyPath: "id", autoIncrement: true });
+  };
+}
+
+function saveHistory(title, ekspresi, hasil) {
   if (!db) return;
-
-  const tx = db.transaction('calculations', 'readwrite');
-  const store = tx.objectStore('calculations');
-  const data = {
+  let tx = db.transaction("history", "readwrite");
+  let store = tx.objectStore("history");
+  store.add({
     title,
-    result,
-    timestamp: new Date()
+    ekspresi,
+    hasil,
+    timestamp: new Date().toISOString()
+  });
+  tx.oncomplete = loadHistory;
+}
+
+function loadHistory() {
+  if (!db) return;
+  let list = document.getElementById("historyList");
+  list.innerHTML = "";
+  let tx = db.transaction("history", "readonly");
+  let store = tx.objectStore("history");
+  store.openCursor().onsuccess = (e) => {
+    let cursor = e.target.result;
+    if (cursor) {
+      let data = cursor.value;
+      let li = document.createElement("li");
+      li.textContent = `[${data.title}] ${data.ekspresi} = ${data.hasil} (${new Date(data.timestamp).toLocaleString()})`;
+      list.appendChild(li);
+      cursor.continue();
+    }
   };
-  store.add(data);
-  tx.oncomplete = () => showAllHistory();
 }
 
-function showAllHistory() {
-  const tx = db.transaction('calculations', 'readonly');
-  const store = tx.objectStore('calculations');
-  const request = store.getAll();
-
-  request.onsuccess = () => {
-    renderHistory(request.result);
-  };
+function filterHistory() {
+  let query = document.getElementById("search").value.toLowerCase();
+  let date = document.getElementById("dateFilter").value;
+  let list = document.getElementById("historyList");
+  Array.from(list.children).forEach(li => {
+    let matchText = li.textContent.toLowerCase();
+    let show = matchText.includes(query) && (!date || matchText.includes(date));
+    li.style.display = show ? "block" : "none";
+  });
 }
 
-function renderHistory(data) {
-  historyList.innerHTML = '';
-
-  const searchQuery = searchInput.value.toLowerCase();
-  const dateFilter = dateInput.value;
-
-  data
-    .filter(item => {
-      const matchTitle = item.title.toLowerCase().includes(searchQuery);
-      const matchDate = dateFilter ? new Date(item.timestamp).toISOString().split('T')[0] === dateFilter : true;
-      return matchTitle && matchDate;
-    })
-    .reverse()
-    .forEach(item => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <strong>${item.title}</strong>: ${item.result} <br />
-        <small>${new Date(item.timestamp).toLocaleString()}</small>
-        <button class="delete-btn" onclick="deleteEntry(${item.id})">x</button>
-      `;
-      historyList.appendChild(li);
-    });
-}
-
-function filterResults() {
-  showAllHistory();
-}
-
-function deleteEntry(id) {
-  const tx = db.transaction('calculations', 'readwrite');
-  const store = tx.objectStore('calculations');
-  store.delete(id);
-  tx.oncomplete = () => showAllHistory();
-}
-
-function clearHistory() {
-  const tx = db.transaction('calculations', 'readwrite');
-  const store = tx.objectStore('calculations');
-  const clearRequest = store.clear();
-  clearRequest.onsuccess = () => showAllHistory();
+function clearAllHistory() {
+  if (!db) return;
+  let tx = db.transaction("history", "readwrite");
+  tx.objectStore("history").clear();
+  tx.oncomplete = loadHistory;
 }
